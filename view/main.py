@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from controller.gestor import GestorMantenimientos
 
-
 class Aplicacion:
     def __init__(self):
         self.root = tk.Tk()
@@ -19,6 +18,8 @@ class Aplicacion:
         self._crear_tab_equipos()
         self._crear_tab_tecnicos()
         self._crear_tab_tareas()
+
+        self._cargar_datos_en_tablas()
 
         self.root.mainloop()
 
@@ -84,6 +85,23 @@ class Aplicacion:
             self.tree_tareas.heading(col, text=col)
             self.tree_tareas.column(col, width=150)
         self.tree_tareas.pack(expand=True, fill="both", padx=20, pady=10)
+
+    def _cargar_datos_en_tablas(self):
+        for e in self.gestor.equipos:
+            self.tree_equipos.insert("", "end", values=(e.id, e.nombre, e.ubicacion))
+
+        for t in self.gestor.tecnicos:
+            self.tree_tecnicos.insert("", "end", values=(t.id, t.nombre, t.especialidad))
+
+        for tarea in self.gestor.tareas:
+            self.tree_tareas.insert("", "end", values=(
+                tarea.id,
+                tarea.tipo(),
+                tarea.equipo_id,
+                tarea.tecnico_id,
+                tarea.fecha.strftime("%Y-%m-%d"),
+                tarea.observaciones
+            ))
 
     def mostrar_formulario_equipo(self):
         self._crear_formulario_generico(
@@ -152,7 +170,7 @@ class Aplicacion:
             except Exception as e:
                 messagebox.showerror("Error", f"Datos inválidos: {e}")
 
-        tk.Button(ventana, text="Registrar", command=guardar).grid(columnspan=2, row=len(labels)+1, pady=15)
+        tk.Button(ventana, text="Registrar", command=guardar).grid(columnspan=2, row=len(labels) + 1, pady=15)
 
     def _crear_formulario_generico(self, titulo, campos, callback_guardar):
         ventana = tk.Toplevel()
@@ -174,7 +192,7 @@ class Aplicacion:
             else:
                 messagebox.showerror("Error", "Completa todos los campos")
 
-        tk.Button(ventana, text="Guardar", command=guardar).grid(columnspan=2, row=len(campos)+1, pady=15)
+        tk.Button(ventana, text="Guardar", command=guardar).grid(columnspan=2, row=len(campos) + 1, pady=15)
 
     def _guardar_equipo(self, id_, nombre, ubicacion):
         self.gestor.registrar_equipo(id_, nombre, ubicacion)
@@ -184,7 +202,7 @@ class Aplicacion:
     def _guardar_tecnico(self, id_, nombre, especialidad):
         self.gestor.registrar_tecnico(id_, nombre, especialidad)
         self.tree_tecnicos.insert("", "end", values=(id_, nombre, especialidad))
-        messagebox.showinfo("Éxito", "Técnico registrado correctamente")
+        messagebox.showinfo("Técnico registrado", "Técnico registrado correctamente")
 
 
 if __name__ == "__main__":
